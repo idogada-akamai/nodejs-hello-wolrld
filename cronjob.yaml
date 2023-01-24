@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "helm_chart.fullname" . }}
+  labels:
+    {{- include "helm_chart.labels" . | nindent 4 }}
+spec:
+  jobTemplate:
+    metadata:
+      name: {{ include "helm_chart.fullname" . }}
+    spec:
+      template:
+        metadata:
+          {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          labels:
+            {{- include "helm_chart.selectorLabels" . | nindent 8 }}
+        spec:
+          containers:
+          - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            name: {{ .Chart.Name }}
+            resources: {}
+            command: ["sh", "-c"]
+            args: ["echo doing stuff && sleep 30"]
+          restartPolicy: OnFailure
+  schedule: '*/1 * * * *'
+status: {}

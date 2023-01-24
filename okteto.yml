@@ -1,0 +1,29 @@
+
+build:
+  nodejs-hello-world:
+    context: .
+    image: idogakamai/ts-remote-demo:okteto
+deploy:
+  - |
+    helm upgrade --wait --create-namespace --namespace dev --install nodejs-hello-world chart \
+    --set image.repository=${OKTETO_BUILD_NODEJS_HELLO_WORLD_REPOSITORY} \
+    --set image.tag=okteto \
+    --set fullnameOverride=nodejs-hello-world
+dev:
+  nodejs-hello-world:
+    #image: idogakamai/dev:node-19 #idogakamai/python-remote-demo:okteto-dev-python-3.10
+    command: ["sh"]
+    forward:
+      - 3000:3000
+      - 9229:9229
+    sync:
+      - .:/usr/src/app
+    resources:
+      requests:
+        cpu: "2"
+        memory: "1Gi"
+        # ephemeral-storage: "64Mi"
+      limits:
+        cpu: "2"
+        memory: "1.5Gi"
+        # ephemeral-storage: "1Gi"
